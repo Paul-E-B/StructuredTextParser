@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "CSV_Pipe_To_TabDelimited/1.0.0": {
+        "runtime": {
+          "CSV_Pipe_To_TabDelimited.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "CSV_Pipe_To_TabDelimited/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

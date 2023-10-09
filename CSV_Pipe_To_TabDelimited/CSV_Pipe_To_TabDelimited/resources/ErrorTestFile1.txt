@@ -1,0 +1,4 @@
+Type,HP,MP,AP,DEF
+Knight 200 20 45 23
+Mage 150 100 40 11
+Dwarf 175 10 42 27
