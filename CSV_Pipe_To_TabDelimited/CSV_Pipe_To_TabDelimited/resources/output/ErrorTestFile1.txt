@@ -1,8 +1,0 @@
-Line#1 :Field#1=Type,HP,MP,AP,DEF
-
-Line#2 :Field#1=Knight 200 20 45 23
-
-Line#3 :Field#1=Mage 150 100 40 11
-
-Line#4 :Field#1=Dwarf 175 10 42 27
-

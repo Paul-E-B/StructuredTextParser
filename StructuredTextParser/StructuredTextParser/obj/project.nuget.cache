@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "dgSpecHash": "YDY2tg+9Qda1O/VwdT84friQVnwypiAq9nVmDRMUk+IRi5qH0MdtniH7qUlEHmCEfKOxb7eozE1TubQ8xr8iTQ==",
+  "success": true,
+  "projectFilePath": "D:\\Database_for_Applications\\github\\StructuredTextParser\\StructuredTextParser\\StructuredTextParser\\StructuredTextParser\\StructuredTextParser.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\pbacz\\.nuget\\packages\\microsoft.aspnetcore.authorization\\6.0.22\\microsoft.aspnetcore.authorization.6.0.22.nupkg.sha512",
+    "C:\\Users\\pbacz\\.nuget\\packages\\microsoft.aspnetcore.components\\6.0.22\\microsoft.aspnetcore.components.6.0.22.nupkg.sha512",
+    "C:\\Users\\pbacz\\.nuget\\packages\\microsoft.aspnetcore.components.analyzers\\6.0.22\\microsoft.aspnetcore.components.analyzers.6.0.22.nupkg.sha512",
+    "C:\\Users\\pbacz\\.nuget\\packages\\microsoft.aspnetcore.components.forms\\6.0.22\\microsoft.aspnetcore.components.forms.6.0.22.nupkg.sha512",
+    "C:\\Users\\pbacz\\.nuget\\packages\\microsoft.aspnetcore.metadata\\6.0.22\\microsoft.aspnetcore.metadata.6.0.22.nupkg.sha512",
+    "C:\\Users\\pbacz\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\6.0.0\\microsoft.extensions.dependencyinjection.abstractions.6.0.0.nupkg.sha512",
+    "C:\\Users\\pbacz\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\6.0.4\\microsoft.extensions.logging.abstractions.6.0.4.nupkg.sha512",
+    "C:\\Users\\pbacz\\.nuget\\packages\\microsoft.extensions.options\\6.0.0\\microsoft.extensions.options.6.0.0.nupkg.sha512",
+    "C:\\Users\\pbacz\\.nuget\\packages\\microsoft.extensions.primitives\\6.0.0\\microsoft.extensions.primitives.6.0.0.nupkg.sha512",
+    "C:\\Users\\pbacz\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
+    "C:\\Users\\pbacz\\.nuget\\packages\\system.text.encodings.web\\6.0.0\\system.text.encodings.web.6.0.0.nupkg.sha512",
+    "C:\\Users\\pbacz\\.nuget\\packages\\system.text.json\\6.0.8\\system.text.json.6.0.8.nupkg.sha512"
+  ],
+  "logs": []
+}
