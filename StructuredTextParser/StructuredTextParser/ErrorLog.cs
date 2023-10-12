@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 
 namespace StructuredTextParser
@@ -26,7 +27,24 @@ namespace StructuredTextParser
             return errorLog;
         }
 
+        /// <summary>
+        /// A method used for exporting a specific error to the output directory.
+        /// Used for testing purposes
+        /// </summary>
+        /// <param name="outputPath"></param>Directory to output the data to
+        /// <param name="data"></param>The error to be output
+        public static void ExportError(string outputPath, string data)
+        {
+            using (FileStream outputFile = new FileStream(Path.Combine(outputPath, "error.txt"), FileMode.OpenOrCreate))
+            {
+                using (StreamWriter outputWriter = new StreamWriter(outputFile))
+                {
+                    outputWriter.WriteLine(data);
 
-
+                    outputWriter.Close();
+                }
+                outputFile.Close();
+            }
+        }
     }
 }

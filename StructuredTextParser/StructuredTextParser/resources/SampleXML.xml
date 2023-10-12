@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<menu>
+	<item>
+		<name>Apple</name>
+		<price>$4.00</price>
+		<uom>bag</uom>
+	</item>
+	<item>
+		<name>Orange</name>
+		<price>$.99</price>
+		<uom>lbs</uom>
+	</item>
+</menu>
+

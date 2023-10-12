@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "YDY2tg+9Qda1O/VwdT84friQVnwypiAq9nVmDRMUk+IRi5qH0MdtniH7qUlEHmCEfKOxb7eozE1TubQ8xr8iTQ==",
+  "dgSpecHash": "qB+48MX/uwHr+QRqpqwec+sH+H1z9B6ODWKEZoEJCy6VXV46gjlhU8QfdSAhLMD61iwQAaJTQrnGHDR8ypdMxg==",
   "success": true,
   "projectFilePath": "D:\\Database_for_Applications\\github\\StructuredTextParser\\StructuredTextParser\\StructuredTextParser\\StructuredTextParser\\StructuredTextParser.csproj",
   "expectedPackageFiles": [
@@ -13,9 +13,8 @@
     "C:\\Users\\pbacz\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\6.0.4\\microsoft.extensions.logging.abstractions.6.0.4.nupkg.sha512",
     "C:\\Users\\pbacz\\.nuget\\packages\\microsoft.extensions.options\\6.0.0\\microsoft.extensions.options.6.0.0.nupkg.sha512",
     "C:\\Users\\pbacz\\.nuget\\packages\\microsoft.extensions.primitives\\6.0.0\\microsoft.extensions.primitives.6.0.0.nupkg.sha512",
-    "C:\\Users\\pbacz\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
-    "C:\\Users\\pbacz\\.nuget\\packages\\system.text.encodings.web\\6.0.0\\system.text.encodings.web.6.0.0.nupkg.sha512",
-    "C:\\Users\\pbacz\\.nuget\\packages\\system.text.json\\6.0.8\\system.text.json.6.0.8.nupkg.sha512"
+    "C:\\Users\\pbacz\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\pbacz\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
   ],
   "logs": []
 }

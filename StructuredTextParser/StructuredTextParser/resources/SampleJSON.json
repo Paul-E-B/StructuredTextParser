@@ -1,0 +1,29 @@
+{
+
+
+  "firstName": "John",
+  "lastName": "Doe",
+  "isEnrolled": true,
+  "YearsEnrolled": 2,
+  "address1": {
+    "streetAddress": "916 S. Wabash",
+    "city": "Chicago",
+    "state": "IL",
+    "postalCode": "60000"
+  },
+  "address2": null,
+  "phoneNumbers": [
+    {
+      "type": "Mobile",
+      "number": "999-123-1234",
+      "CanContact": true
+    },
+    {
+      "type": "Home",
+      "number": "999-789-6789",
+      "CanContact": true
+    }
+
+  ]
+
+}
