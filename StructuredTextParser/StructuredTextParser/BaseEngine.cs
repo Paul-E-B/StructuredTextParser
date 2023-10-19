@@ -1,11 +1,7 @@
 ﻿using System.IO;
 using System;
-using static System.Net.WebRequestMethods;
 using System.Data.SqlClient;
-using System.Printing;
-using System.Diagnostics;
-using System.Xml.Linq;
-using System.Windows.Markup;
+
 
 namespace StructuredTextParser
 {
@@ -148,6 +144,9 @@ namespace StructuredTextParser
         string? sqlConnectionString;
 
 
+        /// <summary>
+        /// Process incoming data from a delimited txt file and write it to an SQL table
+        /// </summary>
         void ProcessFileData_ToSql()
         {
             using (StreamReader inputFileReader = new StreamReader(current_File.Path))
@@ -163,9 +162,10 @@ namespace StructuredTextParser
 
                     ClearCurrentTable_SqlCommand();
 
+                    //Skips the line that gives names to each column of data.
+                    //Can be used in the future to make application less hard-coded.
                     inputFileReader.ReadLine();
 
-                    //skips the line that gives data info to the for the table
                     CreateTable_SqlCommand();
 
 
@@ -193,6 +193,145 @@ namespace StructuredTextParser
             }
         }
 
+
+
+
+        /// <summary>
+        /// Create a sql connection for this application
+        /// </summary>
+        /// <returns>the string used to connect to the SQL table</returns>
+        string GenerateSqlConnection()
+        {
+            SqlConnectionStringBuilder mySqlConnectionBuilder = new SqlConnectionStringBuilder();
+            mySqlConnectionBuilder["server"] = @"(localdb)\MSSQLLocalDB";
+            mySqlConnectionBuilder["Trusted_Connection"] = true;
+            mySqlConnectionBuilder["Integrated Security"] = "SSPI";
+            mySqlConnectionBuilder["Initial Catalog"] = "PROG260FA23";
+            return mySqlConnectionBuilder.ToString();
+        }
+
+
+
+
+        /// <summary>
+        /// General use method for executing a SQL command
+        /// </summary>
+        /// <param name="commandStatement"></param>The statement to execute
+        void Execute_SqlCommand(string commandStatement)
+        {
+            try
+            {
+                using (var command = new SqlCommand(commandStatement, connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch(Exception err)
+            {
+                ErrorLog.LogError(err.ToString(), "Execute_SqlCommand");
+            }
+        }
+
+
+        /// <summary>
+        /// A basic method for updating all locations with F to have a Z instead
+        /// </summary>
+        void ReplaceData_SqlCommand()
+        {
+            //https://www.w3schools.com/sql/func_sqlserver_replace.asp
+            inlineSQL = $@"UPDATE [{initialCatalog}].{table} SET Location = REPLACE(Location, 'F','Z')";
+            Execute_SqlCommand(inlineSQL);
+        }
+
+        /// <summary>
+        /// A basic method for deleting all items that are passed their sell by date
+        /// </summary>
+        void DeleteData_SqlCommand()
+        {
+            //https://www.freecodecamp.org/news/how-to-delete-a-row-in-sql-example-query/
+            //https://www.w3schools.com/sql/func_sqlserver_getdate.asp
+            inlineSQL = $@"DELETE FROM [{initialCatalog}].{table} WHERE Sell_by_Date < GETDATE()";
+            Execute_SqlCommand(inlineSQL);
+        }
+
+
+        /// <summary>
+        /// A method used for increasing all price by $1
+        /// </summary>
+        void IncreaseNumbericData_SqlCommand()
+        {
+            inlineSQL = $@"UPDATE [{initialCatalog}].{table} SET Price=Price+1";
+            Execute_SqlCommand(inlineSQL);
+        }
+
+
+
+        /// <summary>
+        /// Deletes a table with the current name from the database
+        /// </summary>
+        void ClearCurrentTable_SqlCommand()
+        {
+            //https://www.w3schools.com/sql/sql_drop_table.asp
+            inlineSQL = $@"DROP TABLE {table}";
+
+            Execute_SqlCommand(inlineSQL);
+        }
+
+        
+
+
+
+
+        /// <summary>
+        /// Creates a table of a given name to the database
+        /// </summary>
+        void CreateTable_SqlCommand()
+        {
+            //https://www.w3schools.com/sql/sql_create_table.asp
+            //https://www.w3schools.com/sql/sql_primarykey.ASP
+            //https://www.tutorialsteacher.com/sqlserver/identity-column
+            //sets the ID, Name, Location, Price, UoM, and Sell_by_Date of a product
+            inlineSQL = $@"CREATE TABLE {table} (ID int PRIMARY KEY IDENTITY(1,1), Name nvarchar(50) NOT NULL, Location nvarchar(50) NOT NULL, Price decimal(6,2) NOT NULL, UoM nchar(10) NOT NULL, Sell_by_Date date  NOT NULL)";
+
+            Execute_SqlCommand(inlineSQL);
+        }
+
+
+
+
+        string? name;
+        string? location;
+        string? price;
+        string? uom;
+        string[]? splitSellDate;
+        string? sellDate;
+
+        
+        /// <summary>
+        /// Inserts data into the produce table
+        /// </summary>
+        /// <param name="data"></param>The data being read in the from the produce pipe file
+        void InsertData_SqlCommand(string[] data)
+        {
+            counter = 0;
+            
+            name = data[counter++];
+            location = data[counter++];
+            price = data[counter++];
+            uom = data[counter++];
+            splitSellDate = data[counter].Split('-');
+            //set the sell date to the correct format of YYYY-MM-DD
+            sellDate = $"{splitSellDate[2]}-{splitSellDate[0]}-{splitSellDate[1]}";
+
+            inlineSQL = $@"INSERT INTO {table} ([Name],[Location],[Price],[UoM],[Sell_by_Date]) VALUES ('{name}','{location}',{price},'{uom}','{sellDate}')";
+
+            Execute_SqlCommand(inlineSQL);
+        }
+
+
+        /// <summary>
+        /// A method used for exporting produce data from an SQL table into a pipe delimited file
+        /// </summary>
         void ExportSql_ToDelimited()
         {
             using (FileStream outputFile = new FileStream(GenerateOutputFileName(output_Path, current_File.Name), FileMode.OpenOrCreate))
@@ -250,133 +389,6 @@ namespace StructuredTextParser
         }
 
 
-
-
-
-        /// <summary>
-        /// General use method for executing a SQL command
-        /// </summary>
-        /// <param name="connection"></param>
-        /// <param name="commandStatement"></param>
-        void Execute_SqlCommand(string commandStatement)
-        {
-            try
-            {
-                using (var command = new SqlCommand(commandStatement, connection))
-                {
-                    command.ExecuteNonQuery();
-                }
-            }
-            catch(Exception err)
-            {
-                ErrorLog.LogError(err.ToString(), "Execute_SqlCommand");
-            }
-        }
-
-
-        void ReplaceData_SqlCommand()
-        {
-            //https://www.w3schools.com/sql/func_sqlserver_replace.asp
-            inlineSQL = $@"UPDATE [{initialCatalog}].{table} SET Location = REPLACE(Location, 'F','Z')";
-            Execute_SqlCommand(inlineSQL);
-        }
-
-        void DeleteData_SqlCommand()
-        {
-            //https://www.freecodecamp.org/news/how-to-delete-a-row-in-sql-example-query/
-            //https://www.w3schools.com/sql/func_sqlserver_getdate.asp
-            inlineSQL = $@"DELETE FROM [{initialCatalog}].{table} WHERE Sell_by_Date < GETDATE()";
-            Execute_SqlCommand(inlineSQL);
-        }
-
-
-
-        void IncreaseNumbericData_SqlCommand()
-        {
-            //https://www.dbvis.com/thetable/mysql-incremental-value-update/
-            inlineSQL = $@"UPDATE [{initialCatalog}].{table} SET Price=Price+1";
-            Execute_SqlCommand(inlineSQL);
-        }
-
-
-
-        /// <summary>
-        /// Deletes a table with the current name from the database
-        /// </summary>
-        void ClearCurrentTable_SqlCommand()
-        {
-            //https://www.w3schools.com/sql/sql_drop_table.asp
-            inlineSQL = $@"DROP TABLE {table}";
-
-            Execute_SqlCommand(inlineSQL);
-        }
-
-        
-
-
-
-
-        /// <summary>
-        /// Creates a table of a given name to the database
-        /// </summary>
-        void CreateTable_SqlCommand()
-        {
-            //https://www.w3schools.com/sql/sql_create_table.asp
-            //https://www.w3schools.com/sql/sql_primarykey.ASP
-            //https://www.tutorialsteacher.com/sqlserver/identity-column
-            //sets the ID, Name, Location, Price, UoM, and Sell_by_Date of a product
-            inlineSQL = $@"CREATE TABLE {table} (ID int PRIMARY KEY IDENTITY(1,1), Name nvarchar(50), Location nvarchar(50), Price decimal(6,2), UoM nchar(10), Sell_by_Date date)";
-
-            Execute_SqlCommand(inlineSQL);
-        }
-
-
-
-
-        string? name;
-        string? location;
-        string? price;
-        string? uom;
-        string[]? splitSellDate;
-        string? sellDate;
-
-        
-        /// <summary>
-        /// Inserts data into the produce table
-        /// </summary>
-        /// <param name="data"></param>
-        void InsertData_SqlCommand(string[] data)
-        {
-            counter = 0;
-            
-            name = data[counter++];
-            location = data[counter++];
-            price = data[counter++];
-            uom = data[counter++];
-            splitSellDate = data[counter].Split('-');
-            //set the sell date to the correct format of YYYY-MM-DD
-            sellDate = $"{splitSellDate[2]}-{splitSellDate[0]}-{splitSellDate[1]}";
-
-            inlineSQL = $@"INSERT INTO {table} ([Name],[Location],[Price],[UoM],[Sell_by_Date]) VALUES ('{name}','{location}',{price},'{uom}','{sellDate}')";
-
-            Execute_SqlCommand(inlineSQL);
-        }
-
-
-
-        /// <summary>
-        /// Create a sql connection for this application
-        /// </summary>
-        /// <returns></returns>
-        string GenerateSqlConnection()
-        {
-            SqlConnectionStringBuilder mySqlConnectionBuilder = new SqlConnectionStringBuilder();
-            mySqlConnectionBuilder["server"] = @"(localdb)\MSSQLLocalDB";
-            mySqlConnectionBuilder["Trusted_Connection"] = true;
-            mySqlConnectionBuilder["Integrated Security"] = "SSPI";
-            mySqlConnectionBuilder["Initial Catalog"] = "PROG260FA23";
-            return mySqlConnectionBuilder.ToString();
-        }
     }
 }
 

@@ -20,11 +20,11 @@ namespace StructuredTextParser
         //This is the directory this program writes to
         public static string? outputDirectory;
 
-
+        //This holds the text that becomes parse options for the user to select
         public static string[] parseOptions = { "Parse CSV File." , "Parse Pipe File.", "Parse XML Grocery File.", "Parse JSON Student File.", "Parse Txt Produce to SQL."};
 
 
-
+        //These are the valid extension for parsing used throughout the program
         public static List<string> validFileExtensions = new List<string>();
         public static List<string> validSqlFileExtensions = new List<string>();
 
@@ -36,8 +36,10 @@ namespace StructuredTextParser
         {
             InitializeComponent();
 
+            //allows the user to select multiple choices at once
             TheList.SelectionMode = SelectionMode.Multiple;
 
+            //populate the list of options with selections for the user
             TheList.Items.Add(parseOptions[0]);
             TheList.Items.Add(parseOptions[1]);
             TheList.Items.Add(parseOptions[2]);
@@ -59,6 +61,7 @@ namespace StructuredTextParser
 
             ParseUserSelections();
 
+            //Stream data from input path (first value passed) to the output path (second value passed)
             Importer.StreamDataToSql("..\\..\\..\\resources\\DataToSQL", "..\\..\\..\\resources\\output");
 
 
@@ -74,6 +77,9 @@ namespace StructuredTextParser
 
         }
 
+        /// <summary>
+        /// A method used to ensure only the user's selected parse options are completed
+        /// </summary>
         void ParseUserSelections()
         {
             validFileExtensions.Clear();

@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Net.WebSockets;
-using System.Text;
-using System.Threading.Tasks;
+
 
 
 
@@ -88,6 +84,12 @@ namespace StructuredTextParser
         }
 
 
+
+        /// <summary>
+        /// Stream data from desired file, input it into a SQL table, then output it as a formatted txt file
+        /// </summary>
+        /// <param name="inputPaths"></param>This is the path to the folder the data is read-in from
+        /// <param name="outputPath"></param>This is the path to the folder that the txt files will be output to
         public static void StreamDataToSql(string inputPath, string outputPath)
         {
             //Get a list of all paths to all files in the directory

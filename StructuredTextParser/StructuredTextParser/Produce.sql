@@ -1,7 +1,7 @@
 USE [PROG260FA23]
 GO
 
-/****** Object:  Table [dbo].[Produce]    Script Date: 10/18/2023 9:21:47 PM ******/
+/****** Object:  Table [dbo].[Produce]    Script Date: 10/18/2023 9:54:00 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -10,11 +10,11 @@ GO
 
 CREATE TABLE [dbo].[Produce](
 	[ID] [int] IDENTITY(1,1) NOT NULL,
-	[Name] [nvarchar](50) NULL,
-	[Location] [nvarchar](50) NULL,
-	[Price] [decimal](6, 2) NULL,
-	[UoM] [nchar](10) NULL,
-	[Sell_by_Date] [date] NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Location] [nvarchar](50) NOT NULL,
+	[Price] [decimal](6, 2) NOT NULL,
+	[UoM] [nchar](10) NOT NULL,
+	[Sell_by_Date] [date] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC
