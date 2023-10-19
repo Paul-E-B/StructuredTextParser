@@ -296,7 +296,13 @@ namespace StructuredTextParser
             Execute_SqlCommand(inlineSQL);
         }
 
+        void CreateSQLTable_SqlCommand()
+        {
+            //sets the ID, Name, Location, Price, UoM, and Sell_by_Date of a product
+            inlineSQL = $@"CREATE TABLE {table} (ID int PRIMARY KEY IDENTITY(1,1), Character nchar(10) NOT NULL, Type nvarchar(50) NOT NULL, Map_Location nvchar(50) NOT NULL, Original_character bool NOT NULL, Sword_Fighter bool NOT NULL, Magic_User bool NOT NULL)";
 
+            Execute_SqlCommand(inlineSQL);
+        }
 
 
         string? name;
