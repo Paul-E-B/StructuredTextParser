@@ -1,0 +1,4 @@
+Name,Location,Price,UoM,Sell_by_Date
+Red Apples|12Z|3.99|Bag|10-31-2023
+Green Apples|13Z|4.15|Lbs|9-9-2024
+Watermelon|6B|7.99|Each|12-15-2023

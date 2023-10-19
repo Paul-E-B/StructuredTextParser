@@ -13,5 +13,10 @@
 
         public string Name { get; set; }
 
+        public char Delimiter { get; set; }
+
+        public string ParseType { get; set; }
+
+
     }
 }

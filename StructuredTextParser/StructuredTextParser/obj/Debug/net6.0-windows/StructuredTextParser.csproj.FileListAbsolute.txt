@@ -29,3 +29,9 @@ D:\Database_for_Applications\github\StructuredTextParser\StructuredTextParser\St
 D:\Database_for_Applications\github\StructuredTextParser\StructuredTextParser\StructuredTextParser\StructuredTextParser\obj\Debug\net6.0-windows\StructuredTextParser.genruntimeconfig.cache
 D:\Database_for_Applications\github\StructuredTextParser\StructuredTextParser\StructuredTextParser\StructuredTextParser\obj\Debug\net6.0-windows\ref\StructuredTextParser.dll
 D:\Database_for_Applications\github\StructuredTextParser\StructuredTextParser\StructuredTextParser\StructuredTextParser\bin\Debug\net6.0-windows\Newtonsoft.Json.dll
+D:\Database_for_Applications\github\StructuredTextParser\StructuredTextParser\StructuredTextParser\StructuredTextParser\bin\Debug\net6.0-windows\System.Data.SqlClient.dll
+D:\Database_for_Applications\github\StructuredTextParser\StructuredTextParser\StructuredTextParser\StructuredTextParser\bin\Debug\net6.0-windows\runtimes\win-arm64\native\sni.dll
+D:\Database_for_Applications\github\StructuredTextParser\StructuredTextParser\StructuredTextParser\StructuredTextParser\bin\Debug\net6.0-windows\runtimes\win-x64\native\sni.dll
+D:\Database_for_Applications\github\StructuredTextParser\StructuredTextParser\StructuredTextParser\StructuredTextParser\bin\Debug\net6.0-windows\runtimes\win-x86\native\sni.dll
+D:\Database_for_Applications\github\StructuredTextParser\StructuredTextParser\StructuredTextParser\StructuredTextParser\bin\Debug\net6.0-windows\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
+D:\Database_for_Applications\github\StructuredTextParser\StructuredTextParser\StructuredTextParser\StructuredTextParser\bin\Debug\net6.0-windows\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
