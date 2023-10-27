@@ -21,7 +21,7 @@ namespace StructuredTextParser
         public static string? outputDirectory;
 
         //This holds the text that becomes parse options for the user to select
-        public static string[] parseOptions = { "Parse CSV File." , "Parse Pipe File.", "Parse XML Grocery File.", "Parse JSON Student File.", "Parse Txt Produce to SQL."};
+        public static string[] parseOptions = { "Parse CSV File." , "Parse Pipe File.", "Parse XML Grocery File.", "Parse JSON Student File.", "Parse Produce to SQL.", "Parse Character to SQL."};
 
 
         //These are the valid extension for parsing used throughout the program
@@ -40,11 +40,12 @@ namespace StructuredTextParser
             TheList.SelectionMode = SelectionMode.Multiple;
 
             //populate the list of options with selections for the user
-            TheList.Items.Add(parseOptions[0]);
-            TheList.Items.Add(parseOptions[1]);
-            TheList.Items.Add(parseOptions[2]);
-            TheList.Items.Add(parseOptions[3]);
-            TheList.Items.Add(parseOptions[4]);
+            //TheList.Items.Add(parseOptions[0]);
+            //TheList.Items.Add(parseOptions[1]);
+            //TheList.Items.Add(parseOptions[2]);
+            //TheList.Items.Add(parseOptions[3]);
+            //TheList.Items.Add(parseOptions[4]);
+            TheList.Items.Add(parseOptions[5]);
         }
 
         public static string? testText;
@@ -87,25 +88,29 @@ namespace StructuredTextParser
 
             foreach (string item in TheList.SelectedItems)
             {
-                if (item == parseOptions[0])
+                if (item == parseOptions[0] && !validFileExtensions.Contains(".csv"))
                 {
                     validFileExtensions.Add(".csv");
                 }
-                else if (item == parseOptions[1])
+                else if (item == parseOptions[1] && !validFileExtensions.Contains(".txt"))
                 {
                     validFileExtensions.Add(".txt");
                 }
-                else if (item == parseOptions[2])
+                else if (item == parseOptions[2] && !validFileExtensions.Contains(".xml"))
                 {
                     validFileExtensions.Add(".xml");
                 }
-                else if (item == parseOptions[3])
+                else if (item == parseOptions[3] && !validFileExtensions.Contains(".json"))
                 {
                     validFileExtensions.Add(".json");
                 }
-                else if (item == parseOptions[4])
+                else if (item == parseOptions[4] && !validSqlFileExtensions.Contains(".txt"))
                 {
                     validSqlFileExtensions.Add(".txt");
+                }
+                else if (item == parseOptions[5] && !validSqlFileExtensions.Contains(".csv"))
+                {
+                    validSqlFileExtensions.Add(".csv");
                 }
             }
         }
@@ -133,6 +138,7 @@ namespace StructuredTextParser
                 ErrorLog.LogError(missingOutput.ToString(), "output directory missing.");
             }
         }
+
 
 
     }

@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-Z:\DatabaseDesign\StructuredTextParser\StructuredTextParser\StructuredTextParser\obj\Debug\net6.0-windows\
+D:\Database_for_Applications\github\StructuredTextParser\StructuredTextParser\StructuredTextParser\StructuredTextParser\obj\Debug\net6.0-windows\
 StructuredTextParser
 none
 false
 TRACE;DEBUG;NET;NET6_0;NETCOREAPP
-Z:\DatabaseDesign\StructuredTextParser\StructuredTextParser\StructuredTextParser\App.xaml
+D:\Database_for_Applications\github\StructuredTextParser\StructuredTextParser\StructuredTextParser\StructuredTextParser\App.xaml
 11407045341
 
-2058239069
-204828739689
+221163967420
+204262460543
 MainWindow.xaml;
 
 False

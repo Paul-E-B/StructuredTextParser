@@ -23,7 +23,6 @@ namespace StructuredTextParser
         static FileInfo? currentFile;
 
 
-
         /// <summary>
         /// Stream data from desired delimited file and output it as a formatted txt file
         /// </summary>
@@ -105,12 +104,20 @@ namespace StructuredTextParser
                 {
                     switch(fileExtension)
                     {
-                        //Parse pipe data to sql
+                        //Parse produce data to sql
                         case ".txt":
-                            currentFile = new FileInfo(currentFilePath, fileExtension, Path.GetFileName(currentFilePath), '|', "ToSql");
+                            currentFile = new FileInfo(currentFilePath, fileExtension, Path.GetFileName(currentFilePath), '|', "Produce", "ToSql");
                             engine = new PipeParseEngine();
                             engine.Process(currentFile, outputPath);
                             break;
+
+                        //Parse character data to sql
+                        case ".csv":
+                            currentFile = new FileInfo(currentFilePath, fileExtension, Path.GetFileName(currentFilePath), ',', "Character", "ToSql");
+                            engine = new CSVParseEngine();
+                            engine.Process(currentFile, outputPath);
+                            break;
+
 
                         default:
                             break;

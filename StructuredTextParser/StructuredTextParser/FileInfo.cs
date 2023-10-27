@@ -15,6 +15,9 @@
 
         public string ParseType { get; set; }
 
+        public string SqlTemplate { get; set; }
+
+
         //Used to hold general file info
         public FileInfo(string path, string extension, string name)
         {
@@ -35,5 +38,15 @@
             ParseType = parseType;
         }
 
+        //Used to hold file info specifically for a delimiter type of data
+        public FileInfo(string path, string extension, string name, char delimiter, string sqlTemplate, string parseType)
+        {
+            Path = path;
+            Extension = extension;
+            Name = name;
+            Delimiter = delimiter;
+            SqlTemplate = sqlTemplate;
+            ParseType = parseType;
+        }
     }
 }

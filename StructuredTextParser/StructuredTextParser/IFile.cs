@@ -15,6 +15,6 @@
 
         public string ParseType { get; set; }
 
-
+        public string SqlTemplate { get; set; }
     }
 }

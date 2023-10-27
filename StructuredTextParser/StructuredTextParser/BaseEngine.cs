@@ -1,7 +1,11 @@
 ﻿using System.IO;
 using System;
 using System.Data.SqlClient;
-
+using System.Windows.Documents;
+using System.Windows.Controls;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace StructuredTextParser
 {
@@ -42,8 +46,6 @@ namespace StructuredTextParser
 
 
 
-        string initialCatalog = "PROG260FA23";
-        string table = "[dbo].[Produce]";
         
 
         //used for various tracking tasks
@@ -74,7 +76,7 @@ namespace StructuredTextParser
 
 
                 case "ToSql":
-                    ProcessFileData_ToSql();
+                    ProcessTxtFile_ToSqlTable();
                     break;
 
                 default:
@@ -91,7 +93,6 @@ namespace StructuredTextParser
 
             try
             {
-                //File stream used to read xml file
                 using (StreamReader inputFileReader = new StreamReader(current_File.Path))
                 {
                     using (FileStream outputFile = new FileStream(GenerateOutputFileName(output_Path, current_File.Name), FileMode.OpenOrCreate))
@@ -138,54 +139,105 @@ namespace StructuredTextParser
 
 
 
-
         SqlConnection? connection;
 
-        string? sqlConnectionString;
+        static SqlTableInfo? currentTable;
+
+        List<SqlTableInfo> tables = new List<SqlTableInfo>();
 
 
         /// <summary>
         /// Process incoming data from a delimited txt file and write it to an SQL table
         /// </summary>
-        void ProcessFileData_ToSql()
+        void ProcessTxtFile_ToSqlTable()
         {
+
+
             using (StreamReader inputFileReader = new StreamReader(current_File.Path))
             {
-                
-                sqlConnectionString = GenerateSqlConnection();
 
-                using (connection = new SqlConnection(sqlConnectionString))
+                currentTable = new SqlTableInfo(@"(localdb)\MSSQLLocalDB", true, "SSPI", "PROG260FA23");
+
+                using (connection = new SqlConnection(SqlUtility.GenerateSqlConnection(currentTable)))
                 {
                     connection.Open();
 
                     delimiter = current_File.Delimiter;
 
-                    ClearCurrentTable_SqlCommand();
-
-                    //Skips the line that gives names to each column of data.
-                    //Can be used in the future to make application less hard-coded.
-                    inputFileReader.ReadLine();
-
-                    CreateTable_SqlCommand();
-
-
-                    while ((currentLineInFile = inputFileReader.ReadLine()) != null)
+                    
+                    switch (current_File.SqlTemplate)
                     {
-                        splitData = null;
+                        case "Produce":
+                            currentTable.Table = "[dbo].[Produce]";
+                            currentTable.DataNames = inputFileReader.ReadLine().Split(',');
+                            currentTable.DataTypes = new string[] { "nvarchar(50)", "nvarchar(50)", "decimal(6,2)", "nvarchar(10)", "nvarchar(10)"};
+                            currentTable.IsDataNull = new string[] { "NOT NULL","NOT NULL","NOT NULL","NOT NULL","NOT NULL"};
 
-                        splitData = currentLineInFile.Split(delimiter);
+                            //Create SQL Table from data
+                            SqlUtility.ClearTableFromSQL(currentTable, connection);
+                            SqlUtility.CreateSQLTable(currentTable, connection);
+                            SqlUtility.InsertTxtDataIntoSQLTable(currentTable, inputFileReader, delimiter, connection);
 
-                        InsertData_SqlCommand(splitData);                        
+                            //Update produce info
+                            SqlUtility.Execute_SqlCommand($@"UPDATE [{currentTable.InitialCatalog}].{currentTable.Table} SET Location = REPLACE(Location, 'F','Z')", connection);
+                            SqlUtility.Execute_SqlCommand($@"DELETE FROM [{currentTable.InitialCatalog}].{currentTable.Table} WHERE Sell_by_Date < GETDATE()", connection);
+                            SqlUtility.Execute_SqlCommand($@"UPDATE [{currentTable.InitialCatalog}].{currentTable.Table} SET Price=Price+1", connection);
+                            ExportProduceSQL_ToDelimited();
+                            break;
+
+
+                        case "Character":
+                            //Character(Name) 0    Type 1    Map_Location 2    Original_character 3    Sword_Fighter 4    Magic_User 5
+                            inputFileReader.ReadLine();
+                            tables.Clear();
+
+                            //Character    Type
+                            SqlTableInfo characterTable = new SqlTableInfo("[dbo].[CharacterInfo]");
+                            characterTable.DataNames = new string[] { "Character", "Type"};
+                            characterTable.DataTypes = new string[] { "nvarchar(50)", "nvarchar(50)"};
+                            characterTable.IsDataNull = new string[] { "NOT NULL", "NULL"};
+                            tables.Add(characterTable);
+                            SqlUtility.ClearTableFromSQL(characterTable, connection);
+                            SqlUtility.CreateSQLTable(tables[0], connection);
+
+                            //CharacterID    Map_Location
+                            SqlTableInfo characterLocationTable = new SqlTableInfo("[dbo].[CharacterLocation]");
+                            characterLocationTable.DataNames = new string[] { "CharacterID", "Map_Location" };
+                            characterLocationTable.DataTypes = new string[] { "int", "nvarchar(50)"};
+                            characterLocationTable.IsDataNull = new string[] { "NOT NULL", "NULL" };
+                            tables.Add(characterLocationTable);
+                            SqlUtility.ClearTableFromSQL(characterLocationTable, connection);
+                            SqlUtility.CreateSQLTable(tables[1], connection);
+
+                            //CharacterID    Sword_Fighter    Magic_User
+                            SqlTableInfo characterCombatInfoTable = new SqlTableInfo("[dbo].[CharacterCombatInfo]");
+                            characterCombatInfoTable.DataNames = new string[] { "CharacterID", "Sword_Fighter", "Magic_User"};
+                            characterCombatInfoTable.DataTypes = new string[] { "int","nvarchar(5)", "nvarchar(5)" };
+                            characterCombatInfoTable.IsDataNull = new string[] { "NOT NULL", "NULL", "NULL" };
+                            tables.Add(characterCombatInfoTable);
+                            SqlUtility.ClearTableFromSQL(characterCombatInfoTable, connection);
+                            SqlUtility.CreateSQLTable(tables[2], connection);
+
+                            //CharacterID    Original_Character
+                            SqlTableInfo characterOriginalityTable = new SqlTableInfo("[dbo].[CharacterOriginality]");
+                            characterOriginalityTable.DataNames = new string[] { "CharacterID", "Original_character"};
+                            characterOriginalityTable.DataTypes = new string[] { "int", "nvarchar(5)" };
+                            characterOriginalityTable.IsDataNull = new string[] { "NOT NULL", "NULL"};
+                            tables.Add(characterOriginalityTable);
+                            SqlUtility.ClearTableFromSQL(characterOriginalityTable, connection);
+                            SqlUtility.CreateSQLTable(tables[3], connection);
+
+                            SqlUtility.InsertDataIntoCharacterSQLTables(tables, inputFileReader, delimiter, connection);
+                            SQLQuery_Export_ToTxt("Full Report", SqlUtility.FullCharacterReport());
+                            SQLQuery_Export_ToTxt("Lost", SqlUtility.LostCharacter());
+                            SQLQuery_Export_ToTxt("SwordNonHuman", SqlUtility.NonHuman_SwordUsers());
+                            break;
+
+                        default:
+                            break;
                     }
 
-
-                    ReplaceData_SqlCommand();
-                    DeleteData_SqlCommand();
-                    IncreaseNumbericData_SqlCommand();
-
-
-
-                    ExportSql_ToDelimited();
+                    //ExportSql_ToDelimited();
 
                     connection.Close();
                 }
@@ -193,152 +245,27 @@ namespace StructuredTextParser
             }
         }
 
-
-
-
         /// <summary>
-        /// Create a sql connection for this application
+        /// A method used by every engine to generate the
+        /// name of the output file
         /// </summary>
-        /// <returns>the string used to connect to the SQL table</returns>
-        string GenerateSqlConnection()
+        /// <param name="outputPath"></param>The path to output the data
+        /// <param name="fileName"></param>The current name of the file
+        /// <returns></returns>
+        public string GenerateOutputFileName(string outputPath, string fileName)
         {
-            SqlConnectionStringBuilder mySqlConnectionBuilder = new SqlConnectionStringBuilder();
-            mySqlConnectionBuilder["server"] = @"(localdb)\MSSQLLocalDB";
-            mySqlConnectionBuilder["Trusted_Connection"] = true;
-            mySqlConnectionBuilder["Integrated Security"] = "SSPI";
-            mySqlConnectionBuilder["Initial Catalog"] = "PROG260FA23";
-            return mySqlConnectionBuilder.ToString();
+            indexOfExtension = fileName.LastIndexOf('.');
+            outputFileName = Path.Combine(outputPath, $"{fileName.Substring(0, indexOfExtension)}_out.txt");
+
+            return outputFileName;
         }
 
-
-
-
-        /// <summary>
-        /// General use method for executing a SQL command
-        /// </summary>
-        /// <param name="commandStatement"></param>The statement to execute
-        void Execute_SqlCommand(string commandStatement)
-        {
-            try
-            {
-                using (var command = new SqlCommand(commandStatement, connection))
-                {
-                    command.ExecuteNonQuery();
-                }
-            }
-            catch(Exception err)
-            {
-                ErrorLog.LogError(err.ToString(), "Execute_SqlCommand");
-            }
-        }
-
-
-        /// <summary>
-        /// A basic method for updating all locations with F to have a Z instead
-        /// </summary>
-        void ReplaceData_SqlCommand()
-        {
-            //https://www.w3schools.com/sql/func_sqlserver_replace.asp
-            inlineSQL = $@"UPDATE [{initialCatalog}].{table} SET Location = REPLACE(Location, 'F','Z')";
-            Execute_SqlCommand(inlineSQL);
-        }
-
-        /// <summary>
-        /// A basic method for deleting all items that are passed their sell by date
-        /// </summary>
-        void DeleteData_SqlCommand()
-        {
-            //https://www.freecodecamp.org/news/how-to-delete-a-row-in-sql-example-query/
-            //https://www.w3schools.com/sql/func_sqlserver_getdate.asp
-            inlineSQL = $@"DELETE FROM [{initialCatalog}].{table} WHERE Sell_by_Date < GETDATE()";
-            Execute_SqlCommand(inlineSQL);
-        }
-
-
-        /// <summary>
-        /// A method used for increasing all price by $1
-        /// </summary>
-        void IncreaseNumbericData_SqlCommand()
-        {
-            inlineSQL = $@"UPDATE [{initialCatalog}].{table} SET Price=Price+1";
-            Execute_SqlCommand(inlineSQL);
-        }
-
-
-
-        /// <summary>
-        /// Deletes a table with the current name from the database
-        /// </summary>
-        void ClearCurrentTable_SqlCommand()
-        {
-            //https://www.w3schools.com/sql/sql_drop_table.asp
-            inlineSQL = $@"DROP TABLE {table}";
-
-            Execute_SqlCommand(inlineSQL);
-        }
-
-        
-
-
-
-
-        /// <summary>
-        /// Creates a table of a given name to the database
-        /// </summary>
-        void CreateTable_SqlCommand()
-        {
-            //https://www.w3schools.com/sql/sql_create_table.asp
-            //https://www.w3schools.com/sql/sql_primarykey.ASP
-            //https://www.tutorialsteacher.com/sqlserver/identity-column
-            //sets the ID, Name, Location, Price, UoM, and Sell_by_Date of a product
-            inlineSQL = $@"CREATE TABLE {table} (ID int PRIMARY KEY IDENTITY(1,1), Name nvarchar(50) NOT NULL, Location nvarchar(50) NOT NULL, Price decimal(6,2) NOT NULL, UoM nchar(10) NOT NULL, Sell_by_Date date  NOT NULL)";
-
-            Execute_SqlCommand(inlineSQL);
-        }
-
-        void CreateSQLTable_SqlCommand()
-        {
-            //sets the ID, Name, Location, Price, UoM, and Sell_by_Date of a product
-            inlineSQL = $@"CREATE TABLE {table} (ID int PRIMARY KEY IDENTITY(1,1), Character nchar(10) NOT NULL, Type nvarchar(50) NOT NULL, Map_Location nvchar(50) NOT NULL, Original_character bool NOT NULL, Sword_Fighter bool NOT NULL, Magic_User bool NOT NULL)";
-
-            Execute_SqlCommand(inlineSQL);
-        }
-
-
-        string? name;
-        string? location;
-        string? price;
-        string? uom;
-        string[]? splitSellDate;
-        string? sellDate;
-
-        
-        /// <summary>
-        /// Inserts data into the produce table
-        /// </summary>
-        /// <param name="data"></param>The data being read in the from the produce pipe file
-        void InsertData_SqlCommand(string[] data)
-        {
-            counter = 0;
-            
-            name = data[counter++];
-            location = data[counter++];
-            price = data[counter++];
-            uom = data[counter++];
-            splitSellDate = data[counter].Split('-');
-            //set the sell date to the correct format of YYYY-MM-DD
-            sellDate = $"{splitSellDate[2]}-{splitSellDate[0]}-{splitSellDate[1]}";
-
-            inlineSQL = $@"INSERT INTO {table} ([Name],[Location],[Price],[UoM],[Sell_by_Date]) VALUES ('{name}','{location}',{price},'{uom}','{sellDate}')";
-
-            Execute_SqlCommand(inlineSQL);
-        }
 
 
         /// <summary>
         /// A method used for exporting produce data from an SQL table into a pipe delimited file
         /// </summary>
-        void ExportSql_ToDelimited()
+        void ExportProduceSQL_ToDelimited()
         {
             using (FileStream outputFile = new FileStream(GenerateOutputFileName(output_Path, current_File.Name), FileMode.OpenOrCreate))
             {
@@ -357,15 +284,12 @@ namespace StructuredTextParser
                         {
                             counter = 1;
 
-                            name = reader.GetValue(counter++).ToString();
-                            location = reader.GetValue(counter++).ToString();
-                            price = reader.GetValue(counter++).ToString();
-                            uom = reader.GetValue(counter++).ToString().Trim();
-                            splitSellDate = (reader.GetDateTime(counter).ToShortDateString()).Split('/');
-                            //set the sell date to MM-DD-YYYY
-                            sellDate = $"{splitSellDate[0]}-{splitSellDate[1]}-{splitSellDate[2]}";
-
-                            parsedData = $"{name}|{location}|{price}|{uom}|{sellDate}";
+                            string name = reader.GetValue(counter++).ToString();
+                            string location = reader.GetValue(counter++).ToString();
+                            string price = reader.GetValue(counter++).ToString();
+                            string uom = reader.GetValue(counter++).ToString();
+                            string sellDate = reader.GetDateTime(counter).ToShortDateString();
+                            string parsedData = $"{name}|{location}|{price}|{uom}|{sellDate}";
 
                             outputWriter.WriteLine(parsedData);
                         }
@@ -378,24 +302,87 @@ namespace StructuredTextParser
         }
 
 
+        bool first = true;
 
         /// <summary>
-        /// A method used by every engine to generate the
-        /// name of the output file
+        /// This is used to export data from an SQL query of a table and export it as a txt file
         /// </summary>
-        /// <param name="outputPath"></param>The path to output the data
-        /// <param name="fileName"></param>The current name of the file
-        /// <returns></returns>
-        public string GenerateOutputFileName(string outputPath, string fileName)
+        /// <param name="fileName"></param>The desired name of the output txt file
+        /// <param name="inlineSqlCommand"></param>The query being executed
+        void SQLQuery_Export_ToTxt(string fileName, string inlineSqlCommand)
         {
-            indexOfExtension = fileName.LastIndexOf('.');
-            outputFileName = Path.Combine(outputPath, $"{fileName.Substring(0, indexOfExtension)}_out.txt");
+            fileName = output_Path + $"\\{fileName}.txt";
 
-            return outputFileName;
+            using (FileStream outputFile = new FileStream(fileName, FileMode.OpenOrCreate))
+            {
+                using (StreamWriter outputWriter = new StreamWriter(outputFile))
+                {
+                    using(var command = new SqlCommand(inlineSqlCommand, connection))
+                    {
+                        var reader = command.ExecuteReader();
+
+                        first = true;
+                        //output the names of each column data type
+                        for(counter = 0; counter < reader.FieldCount; counter++)
+                        {
+                            if(!first)
+                            {
+                                outputWriter.Write(",");
+                            }
+                            else
+                            {
+                                first = false;
+                            }
+                            outputWriter.Write($"{reader.GetName(counter)}");
+                        }
+                        outputWriter.WriteLine();
+
+
+                        first = true;
+                        //output the rows of data
+                        while(reader.Read())
+                        {    
+                            if(!first)
+                            {
+                                outputWriter.WriteLine();
+                            }
+                            else
+                            {
+                                first = false;
+                            }
+
+                            first = true;
+
+                            for (counter = 0; counter < reader.FieldCount; counter++)
+                            {
+                                if (!first)
+                                {
+                                    outputWriter.Write(",");
+                                }
+                                else
+                                {
+                                    first = false;
+                                }
+                                outputWriter.Write($"{reader[counter]}");
+                            }
+                        }
+                        reader.Close();
+                    }
+                    outputWriter.Close();
+                }
+                outputFile.Close();
+            }
+
         }
+
+
 
 
     }
 }
+
+
+
+
 
 
